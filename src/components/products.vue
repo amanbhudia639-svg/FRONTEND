@@ -37,6 +37,7 @@
               <p class="mb-1">LOCATION : {{ product.location }}</p>
               <p class="mb-1">AVAILABILITY : {{ product.quantity }}</p>
               <p>PRICE : £{{ product.price }}</p>
+              <button type="button" class="btn btn-primary" @click="REMOVEBasket(product)" >REMOVE</button>
             </a>
           </div>
         </div>
@@ -70,12 +71,33 @@
    },
 
    methods: {
-     ADDBasket(product) {
-       if (!product || product.quantity <= 0) return;
+     ADDBasket(product){
+         if (!product || product.quantity <= 0) return;
+          product.quantity -= 1;
+          console.log("Removes quantity:", product.quantity);
 
-       product.quantity -= 1;
-       this.Basket.push({ productid: product.productid, pname: product.pname, location: product.location, price: product.price, quantity: 1});
-     },
+        this.Basket.push({productid: product.productid, pname: product.pname, location: product.location, price: product.price, quantity: 1});
+        console.log("Added to basket:", product);
+      },
+
+      REMOVEBasket(product) {
+      // find the index of the product in the basket
+       const index = this.Basket.indexOf(product);
+
+        if (index !== -1) {
+           // restore product quantity
+          const found = this.products.find(p => p.productid === product.productid);
+          if (found) {
+           found.quantity += 1;
+           console.log("Restored quantity:", found.quantity);
+          } 
+
+          // remove the product from the basket
+          this.Basket.splice(index, 1);
+          console.log("Removed from basket:", product);
+        }
+      },
+
    }
 
   };
