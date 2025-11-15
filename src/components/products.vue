@@ -91,30 +91,31 @@
 
 <script>
   export default {
-    name: 'ProductList', // multi-word to satisfy ESLint
+    name: 'ProductList', 
     data() {
       return {
         selectedLocation: '',
         selectedsubject: '',
         selectedprice: '',
         selectedavaliablity: '',
-        products: [
-          { productid: '1001', pname: 'Maths', location: 'Harrow',   price: 10, quantity: 1, icon: 'fa-calculator' },
-          { productid: '1002', pname: 'Science',  location: 'Stanmore', price: 15, quantity: 8, icon: 'fa-flask'},
-          { productid: '1003', pname: 'Geography', location: 'Harrow',   price:  6,  quantity: 7, icon: 'fa-globe'},
-          { productid: '1004', pname: 'History', location: 'Harrow',   price: 10,  quantity:  15, icon: 'fa-landmark' },
-          { productid: '1005', pname: 'English', location: 'Harrow',   price: 10, quantity: 2, icon: 'fa-book'},
-          { productid: '1007', pname: 'computer science',   location: 'Harrow',   price: 10, quantity: 10, icon: 'fa-laptop-code'},
-          { productid: '1008', pname: 'pre',    location: 'Stanmore', price: 15, quantity: 8, icon: 'fa-church'},
-          { productid: '1009', pname: 'Art',  location: 'Harrow',   price: 6,  quantity: 7, icon: 'fa-paintbrush'},
-          { productid: '10010', pname: 'French',    location: 'Harrow',   price: 10, quantity: 15, icon: 'fa-language'},
-          { productid: '10011', pname: 'DT',    location: 'Harrow',   price: 10, quantity: 2, icon: 'fa-tools'}
-        ],
+        products: [],
         Basket: [],
         CHECKOUT: {NAME: '', PHONE:'' }
 
       }
     },
+
+    Display() {
+      fetch('http://localhost:5000/lessons')
+      .then(res => res.json())
+      .then(data => {
+      this.products = data;
+      console.log("Products loaded from backend:", data);
+    })
+    .catch(err => {
+      console.error("Error fetching products:", err);
+    });
+   },
 
     computed: {
     uniqueLocations() {
@@ -183,31 +184,44 @@
         }
       },
 
-        validateName() {
-            // Remove anything that's not a letter or space
-            this.CHECKOUT.NAME = this.CHECKOUT.NAME.replace(/[^A-Za-z\s]/g, '');
-        },
-
-        validatePhone() {
-           // Remove anything that's not a digit
-           this.CHECKOUT.PHONE = this.CHECKOUT.PHONE.replace(/[^0-9]/g, '');
-        },
-
-      CHECK() {
+      async CHECK() {
         if (!this.CHECKOUT.NAME || !this.CHECKOUT.PHONE) {
           alert("Please enter your name and phone number before checking out.");
          return;
         }
 
-           console.log("Checkout Details:");
-           console.log("Name:", this.CHECKOUT.NAME);
-           console.log("Phone:", this.CHECKOUT.PHONE);
-          console.log("Basket Contents:", this.Basket);
+        const orderData = {
+          Name: this.CHECKOUT.NAME,
+          phone: this.CHECKOUT.PHONE,
+          productid: this.Basket.map(p => p.productid),
+          pname: this.Basket.map(p => p.pname),
+          quantity: this.Basket.map(p => p.quantity)
+        };
 
-           // Example: simulate clearing basket after checkout
-          alert(`Thank you, ${this.CHECKOUT.NAME}! Your order has been placed.`);
+        try {
+          const response = await fetch("http://localhost:5000/Order",{
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(orderData),
+          })
+
+          const data = await response.json();
+
+          if(response.ok){
+            console.log("Order success:", data);
+            alert(`Thank you, ${this.CHECKOUT.NAME}! Your order has been placed.`);
+
+            // Clear basket only after success
            this.Basket = [];
-           this.CHECKOUT = { NAME: '', PHONE: '' };
+           this.CHECKOUT = { NAME: "", PHONE: "" };
+          } else{
+            console.error("Order error:", data.error);
+            alert(data.error || "Failed to place order. Please try again.");
+          }
+        } catch(error){
+          console.error(" Unexpected error:", error);
+          alert("An unexpected error occurred. Please try again later.");
+        }
       }  
 
     }
@@ -261,7 +275,7 @@
 .filter-box {
   display: inline-block;
   padding: 8px 16px;
-  border-radius: 30px;      
+  border-radius: 30px;     
   border: 2px solid #0d6efd; 
   background-color: #f8f9fa; 
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
@@ -271,7 +285,7 @@
 .fixed-left {
   position: fixed;
   top: 150px;    
-  left: 10px;    
+  left: 10px;   
 }
 
 
@@ -283,14 +297,14 @@
 
 .fixed-left3 {
   position: fixed;
-  top: 300px;   
+  top: 300px;    
   left: 10px;    
 }
 
 .fixed-left4 {
   position: fixed;
-  top: 375px;   
-  left: 10px;   
+  top: 375px;    
+  left: 10px;    
 }
 
 </style>
