@@ -12,7 +12,7 @@
               <p class="mb-1">LOCATION : {{ product.location }}</p>
               <p class="mb-1">AVAILABILITY : {{ product.quantity }}</p>
               <p>PRICE : £{{ product.price }}</p>
-              <button type="button" class="btn btn-primary" @click="ADDBasket(product)" :disabled="product.quantity <= 0"> ADD BASKET</button>
+              <button type="button" class="btn btn-primary" @click="ADDBasket(product)" :disabled="product.quantity <= 0">ADD BASKET</button>
             </a>
           </div>
         </div>
@@ -41,6 +41,14 @@
             </a>
           </div>
         </div>
+
+      </div>
+      <div>
+        <h5>Enter your name:</h5>
+        <input type="text" v-model="CHECKOUT.NAME" @input="validateName"  placeholder="Enter Name" />
+        <h5>Enter your Phone number:</h5>
+        <input type="text" v-model="CHECKOUT.PHONE" @input="validatePhone" placeholder="Enter Phone Number" />
+        <button class="btn btn-success w-100" @click="CHECK" :disabled="!CHECKOUT.NAME || !CHECKOUT.PHONE">Checkout</button>
       </div>
     </div>
   </div>
@@ -50,28 +58,31 @@
 
 <script>
   export default {
-    name: "ProductList",
-   data() {
-     return {
-       products: [
-        { productid: "1001", pname: "Maths", location: "Harrow", price: 10, quantity: 1 },
-        { productid: "1002", pname: "Science", location: "Stanmore", price: 15, quantity: 8 },
-        { productid: "1003", pname: "Geography", location: "Harrow", price: 6, quantity: 7 },
-        { productid: "1004", pname: "History", location: "Harrow", price: 10, quantity: 15 },
-        { productid: "1005", pname: "English", location: "Harrow", price: 10, quantity: 2 },
-        { productid: "1007", pname: "computer science", location: "Harrow", price: 10, quantity: 10 },
-        { productid: "1008", pname: "pre", location: "Stanmore", price: 15, quantity: 8 },
-        { productid: "1009", pname: "Art", location: "Harrow", price: 6, quantity: 7 },
-        { productid: "10010", pname: "French", location: "Harrow", price: 10, quantity: 15 },
-        { productid: "10011", pname: "DT", location: "Harrow", price: 10, quantity: 2 }
+    name: 'ProductList', // multi-word to satisfy ESLint
+    data() {
+      return {
+        products: [
+          { productid: '1001', pname: 'Maths', location: 'Harrow',   price: 10, quantity: 1 },
+          { productid: '1002', pname: 'Science',  location: 'Stanmore', price: 15, quantity: 8},
+          { productid: '1003', pname: 'Geography', location: 'Harrow',   price:  6,  quantity: 7},
+          { productid: '1004', pname: 'History', location: 'Harrow',   price: 10,  quantity:  15 },
+          { productid: '1005', pname: 'English', location: 'Harrow',   price: 10, quantity: 2},
+          { productid: '1007', pname: 'computer science',   location: 'Harrow',   price: 10, quantity: 10 },
+          { productid: '1008', pname: 'pre',    location: 'Stanmore', price: 15, quantity: 8},
+          { productid: '1009', pname: 'Art',  location: 'Harrow',   price: 6,  quantity: 7},
+          { productid: '10010', pname: 'French',    location: 'Harrow',   price: 10, quantity: 15},
+          { productid: '10011', pname: 'DT',    location: 'Harrow',   price: 10, quantity: 2}
         ],
         Basket: [],
+        CHECKOUT: [
+          {NAME: '', PHONE:'' }
+        ]
 
-      };
-   },
+      }
+    },
 
-   methods: {
-     ADDBasket(product){
+    methods: {
+      ADDBasket(product){
          if (!product || product.quantity <= 0) return;
           product.quantity -= 1;
           console.log("Removes quantity:", product.quantity);
@@ -98,45 +109,83 @@
         }
       },
 
-   }
+        validateName() {
+            // Remove anything that's not a letter or space
+            this.CHECKOUT.NAME = this.CHECKOUT.NAME.replace(/[^A-Za-z\s]/g, '');
+        },
 
-  };
+        validatePhone() {
+           // Remove anything that's not a digit
+           this.CHECKOUT.PHONE = this.CHECKOUT.PHONE.replace(/[^0-9]/g, '');
+        },
+
+      CHECK() {
+        if (!this.CHECKOUT.NAME || !this.CHECKOUT.PHONE) {
+          alert("Please enter your name and phone number before checking out.");
+         return;
+        }
+
+           console.log("Checkout Details:");
+           console.log("Name:", this.CHECKOUT.NAME);
+           console.log("Phone:", this.CHECKOUT.PHONE);
+          console.log("Basket Contents:", this.Basket);
+
+           // Example: simulate clearing basket after checkout
+          alert(`Thank you, ${this.CHECKOUT.NAME}! Your order has been placed.`);
+           this.Basket = [];
+           this.CHECKOUT = { NAME: '', PHONE: '' };
+      }
+
+      
+
+    }
+
+
+
+  }
+
+
+
+
+
+
+
+
 </script>
 
 <style scoped>
-  h2 {
-    margin-bottom: 16px;
-  }
+  h2 { margin-bottom: 16px; }
 
   ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2,1fr); 
+  gap: 20px;
+  } 
 
   li {
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 6px;
+  margin-bottom: 10px; 
+  padding: 10px;
+  border-radius: 6px;
   }
 
-  .list-group-item.active {
-    background-color: lightgrey;
-    border-color: black;
-    color: black;
-    border-width: 2px !important;
-    padding: 10px;
-  }
+ .list-group-item.active {
+  background-color: lightgrey; 
+  border-color: black;
+  color: black;
+  border-width: 2px !important; 
+  padding: 10px;
+ }
 
-  .list-group {
-    position: relative;
-    top: 100px;
-    left: 100px;
-  }
+ .list-group {
+  position: relative;
+  top: 100px;
+  left: 100px;
+ }
+
+
 
 </style>
-
   
