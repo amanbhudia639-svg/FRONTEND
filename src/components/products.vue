@@ -1,58 +1,15 @@
 <template>
-  <div>
-    <h2>Product List</h2>
-    <div class="container py-3">
-      <div class="row g-3">
-       <div class="col-md-6" v-for="product in filteredProducts" :key="product.productid">
-          <div class="list-group">
-            <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1"><i :class="['fa-solid', product.icon, 'me-2']"></i>{{ product.pname }}</h5>
-              </div>
-              <p class="mb-1">LOCATION : {{ product.location }}</p>
-              <p class="mb-1">AVAILABILITY : {{ product.quantity }}</p>
-              <p>PRICE : £{{ product.price }}</p>
-              <button type="button" class="btn btn-primary" @click="ADDBasket(product)" :disabled="product.quantity <= 0">ADD BASKET</button>
-            </a>
-          </div>
-        </div>
-      </div>
+  <div class="main-wrapper">
+
+  
+    <div class="top-bar d-flex justify-content-between align-items-center px-4">
+      <h1 class="m-0 fw-normal">hilessons</h1>
+      <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling" :disabled="Basket.length <= 0">Basket ({{ Basket.length }})</button>
     </div>
 
-    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling" :disabled="Basket.length <= 0">Basket</button>
+    
+    <div class="filters-left">
 
-    <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasScrollingLabel">BASKET({{ Basket.length }})</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-
-      <div class="offcanvas-body">
-        <div class="col-md-6" v-for="product in Basket" :key="product.productid">
-          <div class="list-group">
-            <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1"><i :class="['fa-solid', product.icon, 'me-2']"></i>{{ product.pname }}</h5>
-              </div>
-              <p class="mb-1">LOCATION : {{ product.location }}</p>
-              <p class="mb-1">AVAILABILITY : {{ product.quantity }}</p>
-              <p>PRICE : £{{ product.price }}</p>
-              <button type="button" class="btn btn-primary" @click="REMOVEBasket(product)" >REMOVE</button>
-            </a>
-          </div>
-        </div>
-
-      </div>
-      <div>
-        <h5>Enter your name:</h5>
-        <input type="text" v-model="CHECKOUT.NAME" @input="validateName"  placeholder="Enter Name" />
-        <h5>Enter your Phone number:</h5>
-        <input type="text" v-model="CHECKOUT.PHONE" @input="validatePhone" placeholder="Enter Phone Number" />
-        <button class="btn btn-success w-100" @click="CHECK" :disabled="!CHECKOUT.NAME || !CHECKOUT.PHONE">Checkout</button>
-      </div>
-    </div>
-
-    <div class="d-flex flex-column align-items-start mb-3">
       <div class="filter-box fixed-left">
         <label for="locationFilter" class="form-label me-2 mb-0 fw-bold">Location:</label>
         <select id="locationFilter" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedLocation">
@@ -60,32 +17,94 @@
           <option v-for="loc in uniqueLocations" :key="loc" :value="loc">{{ loc }}</option>
         </select>
       </div>
-    </div>
-    <div class="filter-box fixed-left2" >
-      <label for="subject" class="form-label me-2 mb-0 fw-bold">subjsect:</label>
+
+      <div class="filter-box fixed-left2">
+        <label for="subject" class="form-label me-2 mb-0 fw-bold">subject:</label>
         <select id="subject" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedsubject">
           <option value="">All subjects</option>
-          <option v-for="sub in  selcsubject" :key="sub" :value="sub">{{ sub }}</option>
+          <option v-for="sub in selcsubject" :key="sub" :value="sub">{{ sub }}</option>
         </select>
+      </div>
+
+      <div class="filter-box fixed-left3">
+        <label for="sortPrice" class="form-label me-2 mb-0 fw-bold">Price:</label>
+        <select id="sortPrice" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedprice">
+          <option value="">All price</option>
+          <option value="low">Low → High</option>
+          <option value="high">High → Low</option>
+        </select>
+      </div>
+
+      <div class="filter-box fixed-left4">
+        <label for="sortquantity" class="form-label me-2 mb-0 fw-bold">AVAILABILITY:</label>
+        <select id="sortquanity" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedavaliablity">
+          <option value="">All Availability</option>
+          <option value="low">Low → High</option>
+          <option value="high">High → Low</option>
+        </select>
+      </div>
+
     </div>
-    <div class="filter-box fixed-left3">
-      <label for="sortPrice" class="form-label me-2 mb-0 fw-bold">Price:</label>
-      <select id="sortPrice" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedprice">
-        <option value="">All price</option>
-        <option value="low">Low → High</option>
-        <option value="high">High → Low</option>
-      </select>
+
+    
+    <div class="products-area">
+      <div class="container py-3">
+        <div class="row g-3">
+          <div class="col-md-6" v-for="product in filteredProducts" :key="product.productid">
+            <div class="list-group">
+              <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">
+                    <i :class="['fa-solid', product.icon, 'me-2']"></i>{{ product.pname }}
+                  </h5>
+                </div>
+                <p class="mb-1">LOCATION : {{ product.location }}</p>
+                <p class="mb-1">AVAILABILITY : {{ product.quantity }}</p>
+                <p>PRICE : £{{ product.price }}</p>
+                <button type="button" class="btn btn-primary"  @click="ADDBasket(product)" :disabled="product.quantity <= 0"> ADD BASKET</button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling">
+
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title">BASKET({{ Basket.length }})</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+
+        <div class="offcanvas-body">
+          <div class="col-md-6" v-for="product in Basket" :key="product.productid">
+            <div class="list-group">
+              <a class="list-group-item list-group-item-action active">
+                <h5 class="mb-1">{{ product.pname }}</h5>
+                <p>LOCATION : {{ product.location }}</p>
+                <p>AVAILABILITY : {{ product.quantity }}</p>
+                <p>PRICE : £{{ product.price }}</p>
+                <button type="button" class="btn btn-danger w-100" @click="REMOVEBasket(product)">REMOVE</button>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3">
+          <h5>Enter your name:</h5>
+          <input type="text" v-model="CHECKOUT.NAME" class="form-control mb-2" placeholder="Enter Name" />
+          <h5>Enter your Phone number:</h5>
+          <input type="text" v-model="CHECKOUT.PHONE" class="form-control mb-3" placeholder="Enter Phone Number" />
+          <button class="btn btn-success w-100" @click="CHECK" :disabled="!CHECKOUT.NAME || !CHECKOUT.PHONE">Checkout</button>
+        </div>
+      </div>
     </div>
-    <div class="filter-box fixed-left4">
-      <label for="sortquantity" class="form-label me-2 mb-0 fw-bold">AVAILABILITY:</label>
-      <select id="sortquanity" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedavaliablity">
-        <option value="">All Availability</option>
-        <option value="low">Low → High</option>
-        <option value="high">High → Low</option>
-      </select>
-    </div>
+
+    
+    <div class="footer-bar"></div>
+
   </div>
 </template>
+
 
 
 
@@ -105,8 +124,8 @@
       }
     },
 
-    Display() {
-      fetch('http://localhost:5000/lessons')
+    mounted() {
+      fetch('http://localhost:4000/lessons')
       .then(res => res.json())
       .then(data => {
       this.products = data;
@@ -157,30 +176,64 @@
    },
 
     methods: {
-      ADDBasket(product){
+      async ADDBasket(product){
          if (!product || product.quantity <= 0) return;
           product.quantity -= 1;
           console.log("Removes quantity:", product.quantity);
 
-        this.Basket.push({productid: product.productid, pname: product.pname, location: product.location, price: product.price, quantity: 1, icon: product.icon});
-        console.log("Added to basket:", product);
+          fetch('http://localhost:4000/quantity', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pname: product.pname,
+              quantity: product.quantity
+            })
+          })
+          .then(res => res.json())
+          .catch(err => console.error("Error:", err));
+
+          // Add to basket or increase qty
+          const existing = this.Basket.find(item => item.productid === product.productid);
+
+          if (existing) {
+            existing.quantity += 1;
+          } else {this.Basket.push({ productid: product.productid,pname: product.pname,location: product.location,price: product.price, quantity: 1,icon: product.icon});
+            console.log("Added to basket:", product);
+          }
       },
 
-      REMOVEBasket(product) {
+      async REMOVEBasket(product) {
       // find the index of the product in the basket
        const index = this.Basket.indexOf(product);
 
         if (index !== -1) {
            // restore product quantity
+          const basketItem = this.Basket[index];
+
           const found = this.products.find(p => p.productid === product.productid);
           if (found) {
            found.quantity += 1;
            console.log("Restored quantity:", found.quantity);
           } 
 
-          // remove the product from the basket
-          this.Basket.splice(index, 1);
-          console.log("Removed from basket:", product);
+          fetch('http://localhost:4000/quantity', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pname: product.pname,
+              quantity: found.quantity
+            })
+          })
+          .then(res => res.json())
+          .catch(err => console.error("Error:", err));
+          // Reduce basket qty or remove
+          if (basketItem.quantity > 1) {
+            basketItem.quantity -= 1;
+          } else {
+            this.Basket.splice(index, 1);
+            console.log("Removed from basket:", product);
+          }
+          
         }
       },
 
@@ -199,7 +252,7 @@
         };
 
         try {
-          const response = await fetch("http://localhost:5000/Order",{
+          const response = await fetch("http://localhost:4000/Order",{
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(orderData),
@@ -305,6 +358,58 @@
   position: fixed;
   top: 375px;    
   left: 10px;    
+}
+
+/* Top bar layout */
+.top-bar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 90px;
+  border-bottom: 2px solid black;
+  background: white;
+  z-index: 2000;
+}
+
+.basket-btn {
+  border-width: 2px !important;
+  border-radius: 25px;
+  padding: 10px 25px;
+}
+
+
+.filters-left {
+  position: fixed;
+  top: 110px;           
+  left: 20px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding-bottom: 100px; 
+}
+
+
+.products-area {
+  margin-top: 110px;   
+  margin-bottom: 90px; 
+  margin-left: 330px;  
+  padding-right: 20px;
+}
+
+
+.footer-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 70px;
+  background: rgb(102, 142, 250);
+  border-top: 2px solid black;
+  z-index: 2000;
+}
+
+.offcanvas {
+  z-index: 5000 !important;
 }
 
 </style>
