@@ -4,6 +4,9 @@
   
     <div class="top-bar d-flex justify-content-between align-items-center px-4">
       <h1 class="m-0 fw-normal">hilessons</h1>
+       <div class="search-container mx-auto">
+         <input type="text" class="form-control search-input" placeholder="Search lessons..." v-model="searchQuery" @input="searchproduct">
+        </div>
       <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling" :disabled="Basket.length <= 0">Basket ({{ Basket.length }})</button>
     </div>
 
@@ -37,7 +40,7 @@
 
       <div class="filter-box fixed-left4">
         <label for="sortquantity" class="form-label me-2 mb-0 fw-bold">AVAILABILITY:</label>
-        <select id="sortquanity" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedavaliablity">
+        <select id="sortquantity" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedavaliablity">
           <option value="">All Availability</option>
           <option value="low">Low → High</option>
           <option value="high">High → Low</option>
@@ -68,7 +71,7 @@
         </div>
       </div>
 
-      <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling">
+      <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling">
 
         <div class="offcanvas-header">
           <h5 class="offcanvas-title">BASKET({{ Basket.length }})</h5>
@@ -82,7 +85,7 @@
                 <h5 class="mb-1">{{ product.pname }}</h5>
                 <p>LOCATION : {{ product.location }}</p>
                 <p>AVAILABILITY : {{ product.quantity }}</p>
-                <p>PRICE : £{{ product.price }}</p>
+                <p>PRICE : £{{ product.price * product.quantity }}</p>
                 <button type="button" class="btn btn-danger w-100" @click="REMOVEBasket(product)">REMOVE</button>
               </a>
             </div>
@@ -113,6 +116,7 @@
     name: 'ProductList', 
     data() {
       return {
+        searchQuery: "",
         selectedLocation: '',
         selectedsubject: '',
         selectedprice: '',
@@ -243,12 +247,15 @@
          return;
         }
 
+        const totalPrice = this.Basket.reduce((sum, p) => sum + p.price * p.quantity, 0);
+
         const orderData = {
           Name: this.CHECKOUT.NAME,
           phone: this.CHECKOUT.PHONE,
           productid: this.Basket.map(p => p.productid),
           pname: this.Basket.map(p => p.pname),
-          quantity: this.Basket.map(p => p.quantity)
+          quantity: this.Basket.map(p => p.quantity),
+          total: totalPrice
         };
 
         try {
@@ -275,19 +282,36 @@
           console.error(" Unexpected error:", error);
           alert("An unexpected error occurred. Please try again later.");
         }
-      }  
+      },
+      
+      async searchproduct(){
+        const query = this.searchQuery.trim();
+
+        // If search is empty reload all products
+        if (!query) {
+          const res = await fetch("http://localhost:4000/lessons");
+          this.products = await res.json();
+          return;
+        }
+        
+        try{
+          const response = await fetch (`http://localhost:4000/lessons/search?query=${encodeURIComponent(this.searchQuery)}`);
+          const data = await response.json();
+          
+          if (response.ok) {
+            this.products = data.products;
+          }else{
+            console.error("Search error", data.message);
+          }
+        } catch (error) {
+          console.error("Unexpected search error", error);
+        }
+
+      }
 
     }
 
   }
-  
-
-
-
-
-
-
-
 
 
 
@@ -395,6 +419,7 @@
   margin-bottom: 90px; 
   margin-left: 330px;  
   padding-right: 20px;
+  padding-bottom: 200px
 }
 
 
@@ -411,6 +436,17 @@
 .offcanvas {
   z-index: 5000 !important;
 }
+
+.search-container {
+  width: 40%;
+}
+
+.search-input {
+  border: 2px solid #0d6efd;
+  border-radius: 25px;
+  padding: 8px 15px;
+}
+
 
 </style>
   
