@@ -26,10 +26,21 @@
         <select id="subject" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedsubject">
           <option value="">All subjects</option>
           <option v-for="sub in selcsubject" :key="sub" :value="sub">{{ sub }}</option>
+          <option value="A">A → Z</option>
+          <option value="Z">Z → A</option>
         </select>
       </div>
 
       <div class="filter-box fixed-left3">
+        <label class="form-label me-2 mb-0 fw-bold">Sort Subject A-Z:</label>
+        <select class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="subjectSort" >
+           <option value="">None</option>
+           <option value="A">A → Z</option>
+           <option value="Z">Z → A</option>
+          </select>
+      </div>
+
+      <div class="filter-box fixed-left4">
         <label for="sortPrice" class="form-label me-2 mb-0 fw-bold">Price:</label>
         <select id="sortPrice" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedprice">
           <option value="">All price</option>
@@ -38,7 +49,7 @@
         </select>
       </div>
 
-      <div class="filter-box fixed-left4">
+      <div class="filter-box fixed-left5">
         <label for="sortquantity" class="form-label me-2 mb-0 fw-bold">AVAILABILITY:</label>
         <select id="sortquantity" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedavaliablity">
           <option value="">All Availability</option>
@@ -120,6 +131,7 @@
         selectedLocation: '',
         selectedsubject: '',
         selectedprice: '',
+        subjectSort: "",
         selectedavaliablity: '',
         products: [],
         Basket: [],
@@ -172,7 +184,11 @@
         filtered = [...filtered].sort((a, b) => b.quantity - a.quantity);
       }
 
-
+      if (this.subjectSort === "A") {
+        filtered = [...filtered].sort((a, b) => a.pname.localeCompare(b.pname));
+      } else if (this.subjectSort === "Z") {
+         filtered = [...filtered].sort((a, b) => b.pname.localeCompare(a.pname));
+      }
 
       return filtered;
     }
@@ -287,7 +303,7 @@
       async searchproduct(){
         const query = this.searchQuery.trim();
 
-        // If search is empty reload all products
+        // If search is empty reloads all products
         if (!query) {
           const res = await fetch("http://localhost:4000/lessons");
           this.products = await res.json();
@@ -382,6 +398,12 @@
   position: fixed;
   top: 375px;    
   left: 10px;    
+}
+
+.fixed-left5 {
+  position: fixed;
+  top: 450px;
+  left: 10px;
 }
 
 /* Top bar layout */
