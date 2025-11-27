@@ -290,7 +290,7 @@
               const product = this.products.find(p => p.productid === item.productid);
 
               if (product) {
-                const newQty = product.quantity - item.quantity; // calculates the new quantity of the product in the products database
+                const newQty = product.quantity;
                 await fetch("http://localhost:4000/quantity", {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
