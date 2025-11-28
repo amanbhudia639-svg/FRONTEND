@@ -142,7 +142,7 @@
 
     mounted() {
       // fetch products from backend when the page is loaded
-      fetch('http://localhost:4000/lessons')
+      fetch('https://back-end-1-2uy7.onrender.com/lessons')
       .then(res => res.json()) // convert response to JSON
       .then(data => {
       this.products = data;  // store the products
@@ -274,7 +274,7 @@
 
         try {
           //sends order to backend 
-          const response = await fetch("http://localhost:4000/Order",{
+          const response = await fetch("https://back-end-1-2uy7.onrender.com/Order",{
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(orderData),
@@ -291,7 +291,7 @@
 
               if (product) {
                 const newQty = product.quantity;
-                await fetch("http://localhost:4000/quantity", {
+                await fetch("https://back-end-1-2uy7.onrender.com/quantity", {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
@@ -327,14 +327,14 @@
 
         // If search is empty reloads all products
         if (!query) {
-          const res = await fetch("http://localhost:4000/lessons");
+          const res = await fetch("https://back-end-1-2uy7.onrender.com/lessons");
           this.products = await res.json();
           return;
         }
         
         try{
           //sends a request to backend search route
-          const response = await fetch (`http://localhost:4000/lessons/search?query=${encodeURIComponent(this.searchQuery)}`);
+          const response = await fetch (`https://back-end-1-2uy7.onrender.com/lessons/search?query=${encodeURIComponent(this.searchQuery)}`);
           const data = await response.json();
           
           if (response.ok) {
