@@ -1,120 +1,128 @@
 <template>
   <div class="main-wrapper">
 
-    <!--contains the Search bar and basket button-->
-    <div class="top-bar d-flex justify-content-between align-items-center px-4">
-      <h1 class="m-0 fw-normal">hilessons</h1>
-       <div class="search-container mx-auto">
-         <input type="text" class="form-control search-input" placeholder="Search lessons..." v-model="searchQuery" @input="searchproduct">  <!--search input which is linked to searchQuery-->
+    <div v-if="!showBasket">
+
+      <!--contains the Search bar and basket button-->
+      <div class="top-bar d-flex justify-content-between align-items-center px-4">
+        <h1 class="m-0 fw-normal">hilessons</h1>
+        <div class="search-container mx-auto">
+          <input type="text" class="form-control search-input" placeholder="Search lessons..." v-model="searchQuery" @input="searchproduct">  <!--search input which is linked to searchQuery-->
         </div>
-      <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling" :disabled="Basket.length <= 0">Basket ({{ Basket.length }})</button>  <!--button that opens the basket page-->
-    </div>
-
-    
-    <div class="filters-left">
-      
-       <!--list of diffrent sorting methods-->
-      <div class="filter-box fixed-left">
-        <label for="locationFilter" class="form-label me-2 mb-0 fw-bold">Location:</label>
-        <select id="locationFilter" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedLocation">  <!--loaction linked to our selectedlocation-->
-          <option value="">All Locations</option>
-          <option v-for="loc in uniqueLocations" :key="loc" :value="loc">{{ loc }}</option>
-        </select>
+        <button class="btn btn-primary" @click="showBasket = true" :disabled="Basket.length <= 0"> Basket ({{ Basket.length }})</button>  <!--button that opens the basket page-->
       </div>
 
-      <div class="filter-box fixed-left2">
-        <label for="subject" class="form-label me-2 mb-0 fw-bold">subject:</label>
-        <select id="subject" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedsubject"> <!--subject linked to our selectedsubject-->
-          <option value="">All subjects</option>
-          <option v-for="sub in selcsubject" :key="sub" :value="sub">{{ sub }}</option>
-        </select>
-      </div>
+      <div class="filters-left">
 
-      <div class="filter-box fixed-left3">
-        <label class="form-label me-2 mb-0 fw-bold">Sort Subject A-Z:</label>
-        <select class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="subjectSort" > <!--sort linked to our selectedsort-->
-           <option value="">None</option>
-           <option value="A">A → Z</option>
-           <option value="Z">Z → A</option>
+        <!--list of diffrent sorting methods-->
+        <div class="filter-box fixed-left">
+          <label for="locationFilter" class="form-label me-2 mb-0 fw-bold">Location:</label>
+          <select id="locationFilter" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedLocation">  <!--loaction linked to our selectedlocation-->
+            <option value="">All Locations</option>
+            <option v-for="loc in uniqueLocations" :key="loc" :value="loc">{{ loc }}</option>
           </select>
+        </div>
+
+        <div class="filter-box fixed-left2">
+          <label for="subject" class="form-label me-2 mb-0 fw-bold">subject:</label>
+          <select id="subject" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedsubject"> <!--subject linked to our selectedsubject-->
+            <option value="">All subjects</option>
+            <option v-for="sub in selcsubject" :key="sub" :value="sub">{{ sub }}</option>
+          </select>
+        </div>
+
+        <div class="filter-box fixed-left3">
+          <label class="form-label me-2 mb-0 fw-bold">Sort Subject A-Z:</label>
+          <select class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="subjectSort" > <!--sort linked to our selectedsort-->
+            <option value="">None</option>
+            <option value="A">A → Z</option>
+            <option value="Z">Z → A</option>
+          </select>
+        </div>
+
+        <div class="filter-box fixed-left4">
+          <label for="sortPrice" class="form-label me-2 mb-0 fw-bold">Price:</label>
+          <select id="sortPrice" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedprice"> <!--price linked to our selectedprice-->
+            <option value="">All price</option>
+            <option value="low">Low → High</option>
+            <option value="high">High → Low</option>
+          </select>
+        </div>
+
+        <div class="filter-box fixed-left5">
+          <label for="sortquantity" class="form-label me-2 mb-0 fw-bold">AVAILABILITY:</label>
+          <select id="sortquantity" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedavaliablity"> <!-- avalibilty linked to our selectedavaliability-->
+            <option value="">All Availability</option>
+            <option value="low">Low → High</option>
+            <option value="high">High → Low</option>
+          </select>
+        </div>
+
       </div>
 
-      <div class="filter-box fixed-left4">
-        <label for="sortPrice" class="form-label me-2 mb-0 fw-bold">Price:</label>
-        <select id="sortPrice" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedprice"> <!--price linked to our selectedprice-->
-          <option value="">All price</option>
-          <option value="low">Low → High</option>
-          <option value="high">High → Low</option>
-        </select>
-      </div>
-
-      <div class="filter-box fixed-left5">
-        <label for="sortquantity" class="form-label me-2 mb-0 fw-bold">AVAILABILITY:</label>
-        <select id="sortquantity" class="form-select d-inline-block w-auto border-0 bg-transparent" v-model="selectedavaliablity"> <!-- avalibilty linked to our selectedavaliability-->
-          <option value="">All Availability</option>
-          <option value="low">Low → High</option>
-          <option value="high">High → Low</option>
-        </select>
-      </div>
-
-    </div>
-
-    <!--where products are displayed and added -->
-    <div class="products-area">
-      <div class="container py-3">
-        <div class="row g-3">
-          <div class="col-md-6" v-for="product in filteredProducts" :key="product.productid"> <!-- loops through filtered products and key is for finding the products -->
-            <div class="list-group">
-              <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
-                <div class="d-flex w-100 justify-content-between">
-                  <h5 class="mb-1">
-                    <i :class="['fa-solid', product.icon, 'me-2']"></i>{{ product.pname }} <!-- uses fontaswesome icons and shows product name-->
-                  </h5>
-                </div>
-                <p class="mb-1">LOCATION : {{ product.location }}</p> <!-- shows location -->
-                <p class="mb-1">AVAILABILITY : {{ product.quantity }}</p> <!-- shows quantity -->
-                <p>PRICE : £{{ product.price }}</p> <!--shows the price-->
-                <button type="button" class="btn btn-primary"  @click="ADDBasket(product)" :disabled="product.quantity <= 0"> ADD BASKET</button> <!--calls the addBasket(product) method and if quantity is 0 button is disabled-->
-              </a>
+      <!--where products are displayed and added -->
+      <div class="products-area">
+        <div class="container py-3">
+          <div class="row g-3">
+            <div class="col-md-6" v-for="product in filteredProducts" :key="product.productid"> <!-- loops through filtered products and key is for finding the products -->
+              <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">
+                      <i :class="['fa-solid', product.icon, 'me-2']"></i>{{ product.pname }} <!-- uses fontaswesome icons and shows product name-->
+                    </h5>
+                  </div>
+                  <p class="mb-1">LOCATION : {{ product.location }}</p> <!-- shows location -->
+                  <p class="mb-1">AVAILABILITY : {{ product.quantity }}</p> <!-- shows quantity -->
+                  <p>PRICE : £{{ product.price }}</p> <!--shows the price-->
+                  <button type="button" class="btn btn-primary" @click="ADDBasket(product)" :disabled="product.quantity <= 0"> ADD BASKET</button> <!--calls the addBasket(product) method and if quantity is 0 button is disabled-->
+                </a>
+              </div>
             </div>
           </div>
         </div>
+      </div> 
+
+      <div class="footer-bar"></div>
+
+    </div>
+
+    <!-- basket page -->
+    <div v-if="showBasket" class="basket-show"> <!-- changes the page layout when show basket is true -->
+      
+      <div class="basket-header">
+        <h2 class="basket-title">BASKET ({{ Basket.length }})</h2> <!-- basket title and shows the amount of items in the basket -->
+        <button class="btn btn-secondary" @click="showBasket = false"><i class="fa-solid fa-arrow-left"></i>Back</button> <!-- makes the basket page false and renders in the main page -->
       </div>
-
-      <!--Displays the basket page -->
-      <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling">
-
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title">BASKET({{ Basket.length }})</h5> <!-- shows how many items are in the basket-->
-          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-
-        <div class="offcanvas-body">
-          <div class="col-md-6" v-for="product in Basket" :key="product.productid"> <!-- loops throught the basket and the key is for the products -->
-            <div class="list-group">
-              <a class="list-group-item list-group-item-action active">
-                <h5 class="mb-1">{{ product.pname }}</h5> <!--product name-->
-                <p>LOCATION : {{ product.location }}</p><!--location-->
-                <p>AVAILABILITY : {{ product.quantity }}</p><!--quantity-->
-                <p>PRICE : £{{ product.price * product.quantity }}</p><!--price-->
-                <button type="button" class="btn btn-danger w-100" @click="REMOVEBasket(product)">REMOVE</button><!--button calls the RemoveBasket(product) method and return tthe item back to the products page-->
-              </a>
+      
+      <div class="basket-layout">
+        <div class="basket-order-box">
+          <h3>Your order:</h3>
+          <div class="basket-order-scroll"> <!-- Allows the order box to be scrolled through  -->
+            <div class="list-group-item list-group-item-action active" v-for="product in Basket" :key="product.productid"> <!-- loops through the basket and key is for finding the products -->
+              <h5><i :class="['fa-solid', product.icon, 'me-2']"></i>{{ product.pname }}</h5> <!-- uses fontaswesome icons and shows product name-->
+              <p>LOCATION : {{ product.location }}</p>  <!-- shows location -->
+              <p>AVAILABILITY : {{ product.quantity }}</p> <!-- shows quantity -->
+              <p>PRICE : £{{ product.price * product.quantity }}</p>  <!--shows the toatl price of that product depenig of how many lessons u have boghut of that type-->
+              <button class="btn btn-danger w-100" @click="REMOVEBasket(product)">REMOVE</button> <!--calls the removeBasket(product) method and removes the item one at a time-->
             </div>
           </div>
         </div>
-
-        <div class="p-3">
-          <h5>Enter your name:</h5>
-          <input type="text" v-model="CHECKOUT.NAME" class="form-control mb-2" placeholder="Enter Name" /><!--inputs customer name linked to checkout.name-->
-          <h5>Enter your Phone number:</h5>
-          <input type="text" v-model="CHECKOUT.PHONE" class="form-control mb-3" placeholder="Enter Phone Number" /><!-- inputs customer phone number linked to checkout.phone -->
-          <button class="btn btn-success w-100" @click="CHECK" :disabled="!CHECKOUT.NAME || !CHECKOUT.PHONE">Checkout</button><!-- triggers the CHECK() method when clicked and is disbaled unless both fields are filled -->
+        
+        <div class="basket-checkout-box">
+          <h3>Total Price</h3> 
+          <h2>£{{ Basket.reduce((sum, p) => sum + p.price * p.quantity, 0) }}</h2><!-- Shows the total price-->
+          
+          <label class="mt-3">Enter Name</label>
+          <input class="form-control" v-model="CHECKOUT.NAME"> <!--binds checkout name -->
+          
+          <label class="mt-3">Phone Number</label>
+          <input class="form-control" v-model="CHECKOUT.PHONE"> <!-- binds checkout phone -->
+          <button class="btn btn-success w-100 mt-4" @click="CHECK" :disabled="!CHECKOUT.NAME || !CHECKOUT.PHONE">CHECKOUT</button> <!-- calls the check method and is disabled if there is no name and phone number -->
         </div>
       </div>
+      <div class="footer-bar"></div>
     </div>
-
-    
-    <div class="footer-bar"></div>
 
   </div>
 </template>
@@ -127,6 +135,7 @@
     name: 'ProductList', 
     data() {
       return {
+        showBasket: false,
         searchQuery: "", // stores text in the search bar
         selectedLocation: '', // selected location filter
         selectedsubject: '', // selected subject filter
@@ -309,6 +318,7 @@
             // clear basket only after success
            this.Basket = [];
            this.CHECKOUT = { NAME: "", PHONE: "" };
+           this.showBasket = false;
           } else{
             console.error("Order error:", data.error);
             alert(data.error || "Failed to place order. Please try again.");
@@ -491,6 +501,92 @@
   border-radius: 25px;
   padding: 8px 15px;
 }
+
+.basket-show {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+
+.basket-header {
+  position: relative;
+  width: 100%;
+  text-align: center;
+  margin-top: 30px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid black;
+}
+
+.basket-title {
+  font-size: 34px;
+  font-weight: bold;
+}
+
+
+.back-btn {
+  position: absolute;
+  left: 20px;
+  top: -5px;
+  display: flex;
+  align-items: right;
+  gap: 6px;
+}
+
+
+.basket-layout {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 40px !important;  
+  flex-grow: 1;
+}
+
+
+.basket-order-box {
+  width: 25%;
+  height: 63vh;                  
+  background: white;
+  border: 3px solid black;
+  border-radius: 40px;
+  padding: 25px 35px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.basket-order-scroll {
+  overflow-y: auto;
+  margin-top: 10px;
+  padding-right: 10px;
+  height: calc(100% - 40px);
+}
+
+
+.basket-order-box .list-group-item.active {
+  background: #d3d3d3;
+  border-radius: 30px;
+  border: 2px solid black !important;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+
+.basket-checkout-box {
+  width: 25%;
+  height: 63vh;
+  background: white;
+  border: 3px solid black;
+  border-radius: 40px;
+  padding: 30px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+
 
 
 </style>
